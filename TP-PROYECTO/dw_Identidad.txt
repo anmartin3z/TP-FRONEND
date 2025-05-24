@@ -1,0 +1,77 @@
+
+CREATE SEQUENCE public.rol_id_rol_seq;
+
+CREATE TABLE public.Rol (
+                id_rol INTEGER NOT NULL DEFAULT nextval('public.rol_id_rol_seq'),
+                grupo VARCHAR(5) NOT NULL,
+                CONSTRAINT rol_pk PRIMARY KEY (id_rol)
+);
+
+
+ALTER SEQUENCE public.rol_id_rol_seq OWNED BY public.Rol.id_rol;
+
+CREATE TABLE public.Usuario (
+                Cod_persona VARCHAR(20) NOT NULL,
+                rol INTEGER NOT NULL,
+                Nombre VARCHAR(250) NOT NULL,
+                Apellido VARCHAR(250) NOT NULL,
+                Fecha_Nacimiento DATE NOT NULL,
+                email VARCHAR(250) NOT NULL,
+                direccion VARCHAR(250) NOT NULL,
+                departamento VARCHAR(250) NOT NULL,
+                nro_casa INTEGER NOT NULL,
+                nacionalidad VARCHAR(250) NOT NULL,
+                barrio VARCHAR(250) NOT NULL,
+                ciudad VARCHAR(250) NOT NULL,
+                celular VARCHAR(50),
+                password VARCHAR(250) NOT NULL,
+                CONSTRAINT cod_persona_pk PRIMARY KEY (Cod_persona)
+);
+
+
+CREATE SEQUENCE public.servicio_id_sevicio_seq;
+
+CREATE TABLE public.Servicio (
+                id_sevicio INTEGER NOT NULL DEFAULT nextval('public.servicio_id_sevicio_seq'),
+                persona VARCHAR(20) NOT NULL,
+                fecha_solicitud DATE NOT NULL,
+                fecha_aprovacion DATE NOT NULL,
+                fecha_vencimiento DATE NOT NULL,
+                estado VARCHAR(1) NOT NULL,
+                motivo VARCHAR(250) NOT NULL,
+                cod_user_aprueba VARCHAR(20) NOT NULL,
+                CONSTRAINT servicio_pk PRIMARY KEY (id_sevicio, persona)
+);
+
+
+ALTER SEQUENCE public.servicio_id_sevicio_seq OWNED BY public.Servicio.id_sevicio;
+
+CREATE TABLE public.Detalle_Servicio (
+                id_persona VARCHAR(20) NOT NULL,
+                cedula_testigo VARCHAR(20) NOT NULL,
+                sevicio INTEGER NOT NULL,
+                estado VARCHAR(1) NOT NULL,
+                CONSTRAINT detalle_servicio_pk PRIMARY KEY (id_persona, cedula_testigo, sevicio)
+);
+
+
+ALTER TABLE public.Usuario ADD CONSTRAINT rol_usuario_fk
+FOREIGN KEY (rol)
+REFERENCES public.Rol (id_rol)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.Servicio ADD CONSTRAINT usuario_servicio_fk
+FOREIGN KEY (persona)
+REFERENCES public.Usuario (Cod_persona)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.Detalle_Servicio ADD CONSTRAINT servicio_detalle_servicio_fk
+FOREIGN KEY (sevicio, id_persona)
+REFERENCES public.Servicio (id_sevicio, persona)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
