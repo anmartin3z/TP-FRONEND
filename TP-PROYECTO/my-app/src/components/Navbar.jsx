@@ -5,6 +5,7 @@ import { RiMenuUnfoldFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import img from '../assets/img/img.png';
 import { useNavigate } from "react-router-dom";
+import NotificationButton from "./NotificationButton";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -57,41 +58,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8 font-medium text-xl">
-          {userRole === 1 && (
-          <Link
-            to="/admin"
-            className="hover:text-primary transition duration-200 ease-linear"
-          >
-            <svg class="h-8 w-8 text-blue-950"  
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            stroke-width="2" 
-            stroke="currentColor" 
-            fill="none" 
-            stroke-linecap="round" 
-            stroke-linejoin="round">  
-            <path stroke="none" d="M0 0h24v24H0z"/>  
-            <circle cx="9" cy="7" r="4" />  
-            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />  
-            <line x1="19" y1="7" x2="19" y2="10" />  
-            <line x1="19" y1="14" x2="19" y2="14.01" />
-            </svg>
-          </Link>)}
-           <Link
-            to="/admin"
-            className="hover:text-primary transition duration-200 ease-linear"
-          >
-          <svg class="h-8 w-8 text-blue-950"  
-          viewBox="0 0 24 24"  
-          fill="none"  
-          stroke="currentColor"  
-          stroke-width="2"  
-          stroke-linecap="round"  
-          stroke-linejoin="round">  
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
-          </Link>
+          <NotificationButton/>
           <Link
             to="/home"
             className="hover:text-primary transition duration-200 ease-linear"

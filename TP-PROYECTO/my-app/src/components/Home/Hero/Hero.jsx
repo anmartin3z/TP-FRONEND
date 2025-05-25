@@ -87,7 +87,7 @@ const Hero = () => {
               Carpeta Ciudadana
             </h2>
             <div className="flex p-3 border rounded-lg" > 
-                <input  class=" w-full" placeholder="Escriba un texto para buscar"></input>
+                <input  className=" w-full" placeholder="Escriba un texto para buscar"></input>
                 <svg
               className="h-8 w-8 text-blue-950"
               fill="none"
