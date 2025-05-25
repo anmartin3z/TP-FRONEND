@@ -1,35 +1,176 @@
-
 import { Button } from "@headlessui/react";
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
-import ServiceCards from "./ServiceCards"; // Importa el componente
+import React, { useEffect, useState } from "react";
+import ServiceCards from "./ServiceCards";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const OurServices = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [puedeSolicitar, setPuedeSolicitar] = useState(false);
+  const [certificadoAprobado, setCertificadoAprobado] = useState(false);
+  const [testigos, setTestigos] = useState([]);
+  const [datosServicio, setDatosServicio] = useState(null); 
+  const [cargando, setCargando] = useState(true);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
+  const generatePDF = (user) => {
+  const doc = new jsPDF();
+  let y = 20;
+
+  doc.setFontSize(12);
+  doc.text("________________________________________", 20, y); y += 10;
+  doc.setFontSize(16);
+  doc.text("Certificado de Vida y Residencia", 20, y); y += 10;
+  doc.setFontSize(12);
+  doc.text("(Conforme al Art 6 Inc. 8 de la Ley 7280 de la Reforma y Modernización de la Policía Nacional)", 20, y); y += 10;
+  doc.text("Página 1 de 1", 20, y); y += 10;
+  doc.text("________________________________________", 20, y); y += 10;
+
+  // Certificado principal
+  const parrafo1 = `CERTIFICO QUE: ${user.nombre} de nacionalidad ${user.nacionalidad}, estado civil ${user.estado_civil} de ${user.edad} años de edad, con Cédula de Identidad Civil N° ${user.cedula}, con fecha de nacimiento ${user.fecha_nacimiento}-`;
+  const parrafo2 = `VIVE Y RESIDE: en la casa N° ${user.nro_casa} ubicada en la calle ${user.direccion} del Barrio ${user.barrio} de esta ciudad de ${user.ciudad}`;
+
+  doc.text(doc.splitTextToSize(parrafo1, 170), 20, y); y += 15;
+  doc.text(doc.splitTextToSize(parrafo2, 170), 20, y); y += 15;
+
+  doc.text("SEGÚN TESTIGOS, VECINOS DEL LUGAR:", 20, y); y += 10;
+
+  user.testigos.forEach((testigo) => {
+    const texto = `• ${testigo.nombre}, de nacionalidad ${testigo.nacionalidad}, mayor de edad, con Cédula de Identidad Civil N° ${testigo.cedula}-`;
+    const lineas = doc.splitTextToSize(texto, 170);
+    doc.text(lineas, 20, y);
+    y += lineas.length * 7;
+  });
+
+  y += 5;
+  const parrafos = [
+    "Se expide el presente CERTIFICADO DE VIDA Y RESIDENCIA, a pedido de la parte interesada, exclusivamente para TRÁMITE LABORAL EN LA REPÚBLICA DEL PARAGUAY, y ante veracidad de los datos de mención, se autoriza su utilización.",
+    "VÁLIDO: Seis (6) meses, conforme a la Resolución N° 293, de fecha 24/03/2014 emanada de la Comandancia de la Policía Nacional. –",
+    "FINAL DEL INFORME EN CAPITAL Y CENTRAL - GUAIRA - ITAPUA - CONCEPCION - AMAMBAY - ALTO PARANA - CAAGUAZU - NEEMBUCU - MISIONES - PARAGUARI - CAAZAPA - SAN PEDRO - CORDILLERA - PDTE. HAYES - CANINDEYU - BOQUERON - ALTO PARAGUAY.-"
+  ];
+
+  parrafos.forEach((texto) => {
+    const lineas = doc.splitTextToSize(texto, 170);
+    doc.text(lineas, 20, y);
+    y += lineas.length * 7;
+  });
+
+  doc.text("________________________________________", 20, y); y += 10;
+  doc.text(`Fecha de Emisión: ${user.fecha_aprobacion}     Aprobado por: ${user.nombre_oficial}`, 20, y); y += 10;
+  doc.text("________________________________________", 20, y); y += 10;
+
+  doc.text("Código de Verificación:", 20, y); y += 10;
+  doc.text("Policía Nacional Dirección de Prevención y Seguridad a través del Sistema de Vida y Residencia Electrónicos", 20, y); y += 10;
+  doc.text("Acordada N° 10XX/2016", 20, y); y += 10;
+  doc.text("________________________________________", 20, y); y += 10;
+  doc.text("Código de Verificación: 456738xx", 20, y); y += 10;
+  doc.text("Verifique la validez de este documento en https://www.csj.gov.py/vidayresidencia/verificador.aspx", 20, y);
+
+  doc.save("certificado_vida_residencia.pdf");
+};
+
+ useEffect(() => {
+  const verificarEstado = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.cod_persona) {
+      alert("No se encontró información del usuario.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/servicio/estado/${user.cod_persona}`);
+      const data = await response.json();
+
+      console.log("Estado recibido desde backend:", data.estado);
+
+      if (data.estado === null) {
+        setPuedeSolicitar(true);
+      } else if (data.estado === "A") {
+        setCertificadoAprobado(true);
+        setPuedeSolicitar(true);
+        setDatosServicio(data); // guardamos para usar id_servicio
+
+        // Obtener testigos por id_servicio
+        const testigosRes = await fetch(`/api/detalle-servicio/testigos/${data.id_servicio}`);
+        const testigosData = await testigosRes.json();
+        setTestigos(testigosData);
+      } else {
+        setPuedeSolicitar(false);
+      }
+    } catch (error) {
+      console.error("Error al verificar estado del servicio:", error);
+      setPuedeSolicitar(false);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  verificarEstado();
+}, []);
+
+ 
+
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <Link
           to="/"
-          className="hover:text-primary transition duration-200 ease-linear "
+          className="hover:text-primary transition duration-200 ease-linear"
         >
-          <Button className="mt-20 border border-black text-left  rounded-lg  ">IR A INICIO</Button>
+          <Button className="mt-20 border border-black text-left rounded-lg">
+            IR A INICIO
+          </Button>
         </Link>
 
-        <h1 className="font-bold text-4xl text-center ">
+        <h1 className="font-bold text-4xl text-center">
           Certificado de Vida y Residencia
         </h1>
       </div>
-      <button
-        onClick={toggleFormulario}
-        className="bg-tertiary text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition"
-      >
-        {mostrarFormulario ? "Cancelar" : "Solicitar"}
-      </button>
+      {/* {certificadoAprobado && (
+        <div className="text-center my-4">
+          <button
+            onClick={() => generatePDF(JSON.parse(localStorage.getItem("user")))}
+            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
+          >
+            Descargar certificado
+          </button>
+        </div>
+      )} */}
+      <div className="text-center my-4">
+          <button
+            onClick={() => {
+                const user = JSON.parse(localStorage.getItem("user"));
+                generatePDF({
+                  ...user,
+                  ...datosServicio,
+                  testigos,
+                });
+              }}
+            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
+          >
+            Descargar certificado
+          </button>
+        </div>
+      {!cargando && puedeSolicitar && (
+        <div className="text-center my-4">
+        <button
+          onClick={toggleFormulario}
+          className="bg-tertiary text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition"
+        >
+          {mostrarFormulario ? "Cancelar" : "Solicitar"}
+        </button>
+        </div>
+      )}
+
+      {!cargando && !puedeSolicitar && (
+        <p className="text-red-600 text-center mt-4">
+          Ya tienes una solicitud pendiente. Espera a que sea aprobada para hacer una nueva.
+        </p>
+      )}
 
       {mostrarFormulario && (
         <div className="w-full flex justify-center">

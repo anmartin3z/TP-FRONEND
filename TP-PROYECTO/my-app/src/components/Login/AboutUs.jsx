@@ -14,7 +14,7 @@ const AboutUs = () => {
         password
       });
 
-      alert(res.data.message);
+      // alert(res.data.message);
 
       // Guardar token o lo que necesites
       localStorage.setItem("authToken", res.data.token);
