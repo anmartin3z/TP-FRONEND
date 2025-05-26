@@ -1,19 +1,20 @@
 //src/routes/index.js
 import express from 'express';
 import authRoutes from './auth.js';
-import servicioRoutes from './servicio.js';
-import estadoRoutes from './servicio.js';
+import solicitaServicioRoutes from './solicitaServicio.js';
+import estadoRoutes from './solicitaServicio.js';
 import detalleServicioRoutes from './detalleServicio.js';
 import usuarioRoutes from './usuario.js';
 
+import serviceRoutes from './service.js';
 
 const router = express.Router();
 
 router.use('/auth', authRoutes);
 router.use('/usuario', usuarioRoutes);
-router.use('/servicio', servicioRoutes);
-router.use('/detalle_servicio', detalleServicioRoutes);
-router.use('/servicio', estadoRoutes); 
-
+router.use('/solicitaServicio', solicitaServicioRoutes);
+router.use('/detalleServicio', detalleServicioRoutes);
+router.use('/solicitaServicio', estadoRoutes); 
+router.use('/service', serviceRoutes);
 
 export default router;

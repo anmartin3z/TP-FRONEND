@@ -1,4 +1,4 @@
-// controllers/servicioController.js
+// controllers/solicitaServicioController.js
 import db from '../db.js';
 
 export const crearServicio = async (req, res) => {
@@ -54,31 +54,3 @@ export const crearServicio = async (req, res) => {
   }
 };
 
-export const actualizarEstado = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { estado } = req.body;
-
-    await db.query(
-      "UPDATE servicio SET estado = $1 WHERE id_servicio = $2",
-      [estado, id]
-    );
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error al actualizar estado:", error);
-    res.status(500).json({ success: false, error });
-  }
-};
-
-export const obtenerSolicitudesPendientes = async (req, res) => {
-  try {
-    const result = await db.query(
-      "SELECT c.id_servicio, c.persona,u.nombre||' '||u.apellido nombre, u.nacionalidad,u.departamento,u.ciudad, u.barrio,u.direccion,u.nro_casa FROM servicio c, usuario u WHERE c.persona = u.cod_persona and c.estado = 'T'"
-    );
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error al obtener solicitudes pendientes:", error);
-    res.status(500).json({ error: "Error del servidor" });
-  }
-};

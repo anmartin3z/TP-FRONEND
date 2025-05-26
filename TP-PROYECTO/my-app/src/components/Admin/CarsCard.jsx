@@ -39,7 +39,8 @@ const CarsCard = ({
       <h1 className="text-lg">
         Dirección: {direccion}, Casa Nro. {nro_casa}
       </h1>
-
+        
+             
       <div className="flex px-1 pt-2 gap-2">
         <button
           onClick={() => onActualizarEstado(id, "A")}

@@ -35,11 +35,12 @@ CREATE TABLE public.servicio (
                 id_servicio INTEGER NOT NULL DEFAULT nextval('public.servicio_id_servicio_seq'),
                 persona VARCHAR(20) NOT NULL,
                 fecha_solicitud DATE NOT NULL,
-                fecha_aprovacion DATE NOT NULL,
-                fecha_vencimiento DATE NOT NULL,
+                fecha_aprovacion DATE,
+                fecha_vencimiento DATE,
                 estado VARCHAR(1) NOT NULL,
                 motivo VARCHAR(250),
                 cod_user_aprueba VARCHAR(20),
+                motivo_rechazo VARCHAR(250),
                 CONSTRAINT servicio_pk PRIMARY KEY (id_servicio, persona)
 );
 

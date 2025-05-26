@@ -9,7 +9,7 @@ export const crearDetalleServicio = async (req, res) => {
     return res.status(400).json({ error: "Datos inválidos. Se requieren 2 testigos, servicio_id e id_persona." });
   }
 
-  // Validar que el servicio existe con ese id_sevicio y persona
+  // Validar que el servicio existe con ese id_servicio y persona
   try {
     const validacion = await db.query(
       `SELECT 1 FROM public.servicio WHERE id_servicio = $1 AND persona = $2`,
@@ -18,7 +18,7 @@ export const crearDetalleServicio = async (req, res) => {
 
     if (validacion.rows.length === 0) {
       return res.status(400).json({
-        error: "No existe un servicio con ese id_sevicio y persona"
+        error: "No existe un servicio con ese id_servicio y persona"
       });
     }
 
@@ -39,6 +39,8 @@ export const crearDetalleServicio = async (req, res) => {
     res.status(500).json({ error: "Error al insertar detalle del servicio: " + error.message });
   }
 };
+
+
 export const obtenerTestigosPorServicio = async (req, res) => {
   const { servicio_id } = req.params;
 

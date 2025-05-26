@@ -1,6 +1,7 @@
 //src/controllers/authController.js
 import db from '../db.js';
 import bcrypt from 'bcrypt';
+import { generateToken } from '../utils/jwt.js';
 
 export const loginUser = async (req, res) => {
   const { cedula, password } = req.body;
@@ -22,15 +23,16 @@ export const loginUser = async (req, res) => {
     if (!match) {
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
-
-    res.status(200).json({
-
-      user: {
+    
+    const data = {
         cod_persona: user.cod_persona,
         nombre: user.nombre,
         apellido: user.apellido,
-        rol: user.rol
-      }
+        rol: user.rol,
+      };
+    res.status(200).json({
+      user: data,
+      token: generateToken(data)
     });
   } catch (err) {
     console.error(err);

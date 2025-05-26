@@ -1,11 +1,13 @@
-
-import React, { useState, useEffect } from "react";
+// Services/ServiceCards.jsx
+import React, { useState } from "react";
+import api from "../../config/axiosConfig";
 
 const ServiceCards = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     cedula_1: "",
     cedula_2: "",
+    motivo:"",
   });
   const [nombresTestigos, setNombresTestigos] = useState(["", ""]);
 
@@ -48,8 +50,9 @@ const ServiceCards = () => {
     const cedulas = [formData.cedula_1, formData.cedula_2];
     for (let cedula of cedulas) {
       try {
-        const response = await fetch(`/api/usuario/${cedula}`);
-        if (!response.ok) {
+        const response = await api.get(`usuario/${cedula}`);
+        console.log("Respuesta del servidor para cédula:", cedula, response.data);
+        if (!response.data || !response.data.cod_persona) {
           alert(`El usuario con cédula ${cedula} no cuenta con identidad electrónica.`);
           return false;
         }
@@ -60,71 +63,60 @@ const ServiceCards = () => {
     }
     return true;
   };
+
   const insertarServicio = async () => {
-  const usuario = JSON.parse(localStorage.getItem("user"));
+    const usuario = JSON.parse(localStorage.getItem("user"));
     if (!usuario || !usuario.cod_persona) {
       alert("Usuario no autenticado correctamente.");
       return;
     }
-  const fechaSolicitud = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
-  const fechaVencimiento = new Date();
-  fechaVencimiento.setMonth(fechaVencimiento.getMonth() + 3);
 
-  try {
-    const bodyServicio = {
-  persona: usuario.cod_persona,
-  fecha_solicitud: fechaSolicitud,
-  fecha_aprovacion: fechaSolicitud, // Ajusta según el flujo de negocio
-  fecha_vencimiento: fechaVencimiento.toISOString().split("T")[0],
-  estado: "P",
-  motivo: "Pendiente aprobación de testigos",
-  cod_user_aprueba: null,
-};
+    const fechaSolicitud = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-console.log("Datos enviados a /api/servicio:", bodyServicio);
-    const servicioResponse = await fetch("/api/servicio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyServicio),
-    });
+    try {
+      const bodyServicio = {
+        persona: usuario.cod_persona,
+        fecha_solicitud: fechaSolicitud,
+        fecha_aprovacion: null, // Ajusta según el flujo de negocio
+        fecha_vencimiento: null,
+        estado: "P",
+        motivo: formData.motivo,
+        cod_user_aprueba: null,
+      };
 
-   if (!servicioResponse.ok) {
-  const errorText = await servicioResponse.text();
-  console.error("Error al insertar servicio:", {
-    status: servicioResponse.status,
-    body: errorText,
-  });
-  alert(`Error al insertar en la tabla servicio: ${errorText || "Sin mensaje del servidor. Revisa la consola."}`);
-  return;
-}
+      const servicioResponse = await api.post("solicitaServicio", bodyServicio);
 
-    const servicioData = await servicioResponse.json();
-    const servicioId = servicioData.id_servicio; // Asegúrate de que el backend devuelva id_sevicio
+      console.log("Servicio registrado correctamente:", servicioResponse.data);
 
-    // Insertar cada testigo en Detalle_Servicio
-    const testigos = [formData.cedula_1, formData.cedula_2];
-    const detalleResponse = await fetch("/api/detalle_servicio", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      const servicioData = servicioResponse.data;
+      const servicioId = servicioData.id_servicio; // Asegúrate que backend devuelva id_servicio
+
+      // Insertar cada testigo en Detalle_Servicio
+      const testigos = [formData.cedula_1, formData.cedula_2];
+
+      await api.post("/detalle_servicio", {
         id_persona: usuario.cod_persona,
         servicio_id: servicioId,
-        testigos: testigos, // es un array con las dos cédulas
-      }),
-    });
+        testigos: testigos,
+      });
 
-    if (!detalleResponse.ok) {
-      const errorText = await detalleResponse.text();
-      alert(`Error al insertar en la tabla detalle_servicio: ${errorText}`);
-      return;
+      
+
+      alert("Servicio registrado exitosamente.");
+    } catch (error) {
+      console.error("Error al insertar en la tabla servicio:", {
+        status: error.response?.status,
+        body: error.response?.data || error.message,
+      });
+
+      alert(
+        `Error al insertar en la tabla servicio: ${
+          error.response?.data?.error || error.message || "Sin mensaje del servidor"
+        }`
+      );
     }
+  };
 
-    alert("Servicio registrado exitosamente.");
-  } catch (error) {
-    alert(`Error al registrar el servicio: ${error.message}`);
-  }
-};
-  
   const obtenerNombresTestigos = async () => {
     const cedulas = [formData.cedula_1, formData.cedula_2];
     const nombres = [];
@@ -154,9 +146,7 @@ console.log("Datos enviados a /api/servicio:", bodyServicio);
               <div className={`w-10 h-10 flex items-center justify-center rounded-full ${indicatorClass(i)}`}>
                 {i + 1}
               </div>
-              {i < 2 && (
-                <div className={`absolute w-full h-1 left-0 top-1/2 transform -translate-y-1/2 ${lineClass(i)}`}></div>
-              )}
+              
             </div>
           ))}
         </div>
@@ -185,12 +175,20 @@ console.log("Datos enviados a /api/servicio:", bodyServicio);
               placeholder="Cédula Testigo 2"
               value={formData.cedula_2}
               onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-lg p-3 mb-4"
+            />
+            <input
+              type="text"
+              name="motivo"
+              placeholder="Motivo de Solicitud"
+              value={formData.motivo}
+              onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-lg p-3"
             />
           </div>
         )}
 
-        {/* Paso 2 */}
+        {/* Paso 2 
         {currentStep === 1 && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Esperando aceptación de los testigos</h2>
@@ -203,28 +201,28 @@ console.log("Datos enviados a /api/servicio:", bodyServicio);
               </li>
             </ul>
           </div>
-        )}
+        )}*/}
 
-        {/* Paso 3 */}
+        {/* Paso 3 
         {currentStep === 2 && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Esperando aprobación del oficial</h2>
           </div>
-        )}
+        )}*/}
 
         {/* Navegación */}
         <div className="flex justify-between mt-8">
-          <button
+             {/*<button
             type="button"
             onClick={handlePrev}
-            className={`bg-gray-300 text-gray-700 px-6 py-2 rounded-lg ${currentStep === 0 ? "hidden" : ""}`}
+            className={`bg-gray-300 text-gray-700 px-6 py-2 rounded-lg ${currentStep === 1 ? "hidden" : ""}`}
           >
             Cancelar
-          </button>
+          </button>*/}
           <button
             type="button"
             onClick={handleNext}
-            className={`bg-blue-600 text-white px-6 py-2 rounded-lg ${currentStep === 2 ? "hidden" : ""}`}
+            className={`bg-blue-600 text-white px-6 py-2 rounded-lg ${currentStep === 1 ? "hidden" : ""}`}
           >
             Aceptar
           </button>

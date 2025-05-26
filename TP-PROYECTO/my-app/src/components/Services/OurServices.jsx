@@ -1,9 +1,11 @@
+//Services/OurService.jsx
 import { Button } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import ServiceCards from "./ServiceCards";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import api from "../../config/axiosConfig";
 
 const OurServices = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -82,8 +84,7 @@ const OurServices = () => {
     }
 
     try {
-      const response = await fetch(`/api/servicio/estado/${user.cod_persona}`);
-      const data = await response.json();
+      const { data } = await api.get(`solicitaServicio/estado/${user.cod_persona}`);
 
       console.log("Estado recibido desde backend:", data.estado);
 
@@ -95,8 +96,8 @@ const OurServices = () => {
         setDatosServicio(data); // guardamos para usar id_servicio
 
         // Obtener testigos por id_servicio
-        const testigosRes = await fetch(`/api/detalle-servicio/testigos/${data.id_servicio}`);
-        const testigosData = await testigosRes.json();
+        const { data: testigosData } = await api.get(`detalleServicio/testigos/${data.id_servicio}`);
+
         setTestigos(testigosData);
       } else {
         setPuedeSolicitar(false);
@@ -130,31 +131,24 @@ const OurServices = () => {
           Certificado de Vida y Residencia
         </h1>
       </div>
-      {/* {certificadoAprobado && (
+       {certificadoAprobado && (
         <div className="text-center my-4">
           <button
-            onClick={() => generatePDF(JSON.parse(localStorage.getItem("user")))}
+            onClick={() =>
+              generatePDF({
+                ...JSON.parse(localStorage.getItem("user")),
+                testigos,
+                fecha_aprobacion: datosServicio?.fecha_aprobacion,
+                nombre_oficial: datosServicio?.nombre_oficial,
+              })
+            }
             className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
           >
             Descargar certificado
           </button>
         </div>
-      )} */}
-      <div className="text-center my-4">
-          <button
-            onClick={() => {
-                const user = JSON.parse(localStorage.getItem("user"));
-                generatePDF({
-                  ...user,
-                  ...datosServicio,
-                  testigos,
-                });
-              }}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
-          >
-            Descargar certificado
-          </button>
-        </div>
+      )} 
+     
       {!cargando && puedeSolicitar && (
         <div className="text-center my-4">
         <button
@@ -177,6 +171,7 @@ const OurServices = () => {
           <ServiceCards />
         </div>
       )}
+      
     </div>
   );
 };
