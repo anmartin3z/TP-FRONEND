@@ -1,6 +1,6 @@
 // controllers/detalleServicioController.js
 
-import db from "../db.js"; // Asegúrate de que db.js use export default
+import db from "../db.js"; 
 
 export const crearDetalleServicio = async (req, res) => {
   const { servicio_id, testigos, id_persona } = req.body;

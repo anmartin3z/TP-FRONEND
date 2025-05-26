@@ -23,11 +23,29 @@ export const loginUser = async (req, res) => {
     if (!match) {
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
-    
+    //  Cálculo de edad
+    const birthDate = new Date(user.fecha_nacimiento);
+    const today = new Date();
+    let edad = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      edad--;
+    }
+
+    const fechaNacimientoFormateada = birthDate.toISOString().split('T')[0];
     const data = {
         cod_persona: user.cod_persona,
         nombre: user.nombre,
         apellido: user.apellido,
+        nacionalidad: user.nacionalidad,
+        direccion :user.direccion,
+        departamento:user.departamento,
+        fecha_nacimiento: fechaNacimientoFormateada,
+        ciudad:user.ciudad,
+        barrio:user.barrio,
+        estado_civil:user.estado_civil,
+        nro_casa:user.nro_casa,
+        edad: edad,
         rol: user.rol,
       };
     res.status(200).json({

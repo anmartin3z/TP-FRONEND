@@ -16,6 +16,7 @@ CREATE TABLE public.usuario (
                 nombre VARCHAR(250) NOT NULL,
                 apellido VARCHAR(250) NOT NULL,
                 fecha_nacimiento DATE NOT NULL,
+                estado_civil VARCHAR(50) NOT NULL,
                 email VARCHAR(250) NOT NULL,
                 direccion VARCHAR(250) NOT NULL,
                 departamento VARCHAR(250) NOT NULL,

@@ -18,61 +18,92 @@ const OurServices = () => {
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
-  const generatePDF = (user) => {
+const generatePDF = (user) => {
   const doc = new jsPDF();
   let y = 20;
 
-  doc.setFontSize(12);
-  doc.text("________________________________________", 20, y); y += 10;
+  const pageWidth = doc.internal.pageSize.getWidth(); // Ancho total de la página
+  const margin = 20;
+
+  // Línea superior (dibujo real)
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageWidth - margin, y); y += 10;
+
+  // Título centrado
   doc.setFontSize(16);
-  doc.text("Certificado de Vida y Residencia", 20, y); y += 10;
+  doc.text("Certificado de Vida y Residencia", pageWidth / 2, y, { align: "center" }); y += 10;
+
+  // Subtítulo centrado más pequeño
   doc.setFontSize(12);
-  doc.text("(Conforme al Art 6 Inc. 8 de la Ley 7280 de la Reforma y Modernización de la Policía Nacional)", 20, y); y += 10;
-  doc.text("Página 1 de 1", 20, y); y += 10;
-  doc.text("________________________________________", 20, y); y += 10;
+  doc.text(
+    "(Conforme al Art 6 Inc. 8 de la Ley 7280 de la Reforma y Modernización de la Policía Nacional)",
+    pageWidth / 2,
+    y,
+    { align: "center" }
+  ); y += 10;
+
+  // Página 1 de 1 alineado a la derecha
+  doc.text("Página 1 de 1", pageWidth - margin, y, { align: "right" }); y += 10;
+
+  // Línea inferior
+  doc.line(margin, y, pageWidth - margin, y); y += 10;
 
   // Certificado principal
-  const parrafo1 = `CERTIFICO QUE: ${user.nombre} de nacionalidad ${user.nacionalidad}, estado civil ${user.estado_civil} de ${user.edad} años de edad, con Cédula de Identidad Civil N° ${user.cedula}, con fecha de nacimiento ${user.fecha_nacimiento}-`;
+  const parrafo1 = `CERTIFICO QUE: ${user.nombre} ${user.apellido} de nacionalidad ${user.nacionalidad}, estado civil ${user.estado_civil} de ${user.edad} años de edad, con Cédula de Identidad Civil N° ${user.cod_persona}, con fecha de nacimiento ${user.fecha_nacimiento}-`;
   const parrafo2 = `VIVE Y RESIDE: en la casa N° ${user.nro_casa} ubicada en la calle ${user.direccion} del Barrio ${user.barrio} de esta ciudad de ${user.ciudad}`;
 
-  doc.text(doc.splitTextToSize(parrafo1, 170), 20, y); y += 15;
-  doc.text(doc.splitTextToSize(parrafo2, 170), 20, y); y += 15;
+  doc.text(doc.splitTextToSize(parrafo1, 170), margin, y); y += 15;
+  doc.text(doc.splitTextToSize(parrafo2, 170), margin, y); y += 15;
 
-  doc.text("SEGÚN TESTIGOS, VECINOS DEL LUGAR:", 20, y); y += 10;
+  doc.text("SEGÚN TESTIGOS, VECINOS DEL LUGAR:", pageWidth / 2, y, { align: "center" }); y += 10;
+
 
   user.testigos.forEach((testigo) => {
-    const texto = `• ${testigo.nombre}, de nacionalidad ${testigo.nacionalidad}, mayor de edad, con Cédula de Identidad Civil N° ${testigo.cedula}-`;
+    const texto = `• ${testigo.nombre}, de nacionalidad ${testigo.nacionalidad}, mayor de edad, con Cédula de Identidad Civil N° ${testigo.cod_persona}-`;
     const lineas = doc.splitTextToSize(texto, 170);
-    doc.text(lineas, 20, y);
+    doc.text(lineas, margin, y);
     y += lineas.length * 7;
   });
 
   y += 5;
   const parrafos = [
     "Se expide el presente CERTIFICADO DE VIDA Y RESIDENCIA, a pedido de la parte interesada, exclusivamente para TRÁMITE LABORAL EN LA REPÚBLICA DEL PARAGUAY, y ante veracidad de los datos de mención, se autoriza su utilización.",
-    "VÁLIDO: Seis (6) meses, conforme a la Resolución N° 293, de fecha 24/03/2014 emanada de la Comandancia de la Policía Nacional. –",
+    "VÁLIDO: Tres (3) meses, conforme a la Resolución N° 293, de fecha 24/03/2014 emanada de la Comandancia de la Policía Nacional. –",
     "FINAL DEL INFORME EN CAPITAL Y CENTRAL - GUAIRA - ITAPUA - CONCEPCION - AMAMBAY - ALTO PARANA - CAAGUAZU - NEEMBUCU - MISIONES - PARAGUARI - CAAZAPA - SAN PEDRO - CORDILLERA - PDTE. HAYES - CANINDEYU - BOQUERON - ALTO PARAGUAY.-"
   ];
 
   parrafos.forEach((texto) => {
     const lineas = doc.splitTextToSize(texto, 170);
-    doc.text(lineas, 20, y);
+    doc.text(lineas, margin, y);
     y += lineas.length * 7;
   });
 
-  doc.text("________________________________________", 20, y); y += 10;
-  doc.text(`Fecha de Emisión: ${user.fecha_aprobacion}     Aprobado por: ${user.nombre_oficial}`, 20, y); y += 10;
-  doc.text("________________________________________", 20, y); y += 10;
+  // Línea horizontal
+  doc.line(margin, y, pageWidth - margin, y); y += 10;
 
-  doc.text("Código de Verificación:", 20, y); y += 10;
-  doc.text("Policía Nacional Dirección de Prevención y Seguridad a través del Sistema de Vida y Residencia Electrónicos", 20, y); y += 10;
-  doc.text("Acordada N° 10XX/2016", 20, y); y += 10;
-  doc.text("________________________________________", 20, y); y += 10;
-  doc.text("Código de Verificación: 456738xx", 20, y); y += 10;
-  doc.text("Verifique la validez de este documento en https://www.csj.gov.py/vidayresidencia/verificador.aspx", 20, y);
+  // Fecha y oficial
+  doc.text(`Fecha de Emisión: ${user.fecha_aprobacion}                 Aprobado por: ${user.nombre_oficial}`, margin, y); y += 10;
 
+  // Otra línea
+  doc.line(margin, y, pageWidth - margin, y); y += 10;
+
+  // Código y verificación
+  doc.text("Código de Verificación:", margin, y); y += 10;
+  doc.setFontSize(9); // más pequeño
+  doc.text("Policía Nacional Dirección de Prevención y Seguridad a través del Sistema de Vida y Residencia Electrónicos", margin, y); 
+  y += 10;
+  doc.setFontSize(12); // volver al tamaño normal después si es necesario
+  doc.text("Acordada N° 10XX/2016", margin, y); y += 10;
+
+  doc.line(margin, y, pageWidth - margin, y); y += 10;
+
+  doc.text("Código de Verificación: 456738xx", margin, y); y += 10;
+  doc.setFontSize(9); // más pequeño
+  doc.text("Verifique la validez de este documento en https://www.csj.gov.py/vidayresidencia/verificador.aspx", margin, y);
+  doc.setFontSize(12); 
   doc.save("certificado_vida_residencia.pdf");
 };
+
 
  useEffect(() => {
   const verificarEstado = async () => {
