@@ -52,7 +52,7 @@ const Navbar = () => {
       {/* Desktop navigation section */}
       <nav className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center gap-2">
-          <Link to="/" className="font-bold text-2xl">
+          <Link to="/home" className="font-bold text-2xl">
             <img src={img} alt="Logo" className="w-40" />
           </Link>
         </div>

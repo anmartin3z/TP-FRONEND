@@ -14,7 +14,6 @@ router.use('/auth', authRoutes);
 router.use('/usuario', usuarioRoutes);
 router.use('/solicitaServicio', solicitaServicioRoutes);
 router.use('/detalleServicio', detalleServicioRoutes);
-router.use('/solicitaServicio', estadoRoutes); 
 router.use('/service', serviceRoutes);
 
 export default router;

@@ -116,13 +116,15 @@ const OurServices = () => {
  
 
   return (
-    <div>
-      <div>
+    <div className="p-5">
+      
+      <div className="relative flex items-center justify-center mt-20 ">
+
         <Link
           to="/"
-          className="hover:text-primary transition duration-200 ease-linear"
+          className="absolute left-0 ml-4"
         >
-          <Button className="mt-20 border border-black text-left rounded-lg">
+          <Button className="border border-black rounded-lg ">
             IR A INICIO
           </Button>
         </Link>
