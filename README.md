@@ -9,16 +9,13 @@ Figma:`https://www.figma.com/design/Lf4QX0RVOUVLBqE630goef/TAREA?node-id=1-10&t=
   
 ## Instalación
 - Clona este repositorio: `git clone https://github.com/anmartin3z/TP-MONOLITICO.git`
-- Ve al directorio del proyecto para el fronend: `cd TP-MONOLITICO/my-app`
-- Ve al directorio del proyecto para el backend: `cd TP-MONOLITICO/my-backend`
-- Ejecuta el comando `npm install`
-- Inicia el servidor de desarrollo: `npm run dev`
-- Ejecuta el contenido de dw_Identidad.txt
-- Ejecuta el contentido de script.txt
+- Ve al directorio del proyecto para el fronend: `cd TP-MONOLITICO/TP-PROYECTO`
+- Instalar DockerDesktop en caso de estar en Windows, en caso de Linux instalar docker y docker-compose.
+- Ejecuta el comando `docker-compose up -d`, el cual creara doys contenedores, uno para la base de datos, y el otro para desplegar el front y el back. Con este comando ya se realiza la creacion y configuracion de la base de datos.
 
 
 ## Uso
-Accede a la aplicación desde tu navegador en `http://localhost:5173`
+Accede a la aplicación desde tu navegador en `http://localhost:5000`
 
 ## Integrantes:
 1. Alejandro Martínez
