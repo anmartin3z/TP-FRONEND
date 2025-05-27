@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  dw-identidad:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - PORT=5000
+    depends_on:
+      - dw-identidad-db
+    networks:
+      - identidad-network
+    restart: unless-stopped
+    
+  dw-identidad-db:
+    image: postgres:15
+    container_name: my-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '5433:5432'
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      - identidad-network
+
+networks:
+  identidad-network:

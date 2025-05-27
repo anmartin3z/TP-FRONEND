@@ -3,7 +3,7 @@ VALUES
 (1, 'ADMIN'),
 (2, 'USER');
 INSERT INTO public.usuario (
-    cod_persona, rol, nombre, apellido, fecha_nacimiento, email,
+    cod_persona, rol, nombre, apellido, fecha_nacimiento, email, 
     direccion, departamento, nro_casa, nacionalidad,
     barrio, ciudad, celular, password
 )
