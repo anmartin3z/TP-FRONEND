@@ -1,2 +1,7 @@
 /TP-PROYECTO/my-backend/nbproject/private/
 /TP-PROYECTO/my-backend/node_modules
+/TP-PROYECTO/my-backend/public
+/TP-PROYECTO/my-backend/package-lock.json
+/TP-PROYECTO/my-app/dist
+/TP-PROYECTO/my-app/node_modules
+/TP-PROYECTO/my-app/package-lock.json

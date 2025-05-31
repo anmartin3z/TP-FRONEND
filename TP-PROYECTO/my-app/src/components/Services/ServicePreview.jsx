@@ -1,3 +1,4 @@
+// Services/ServicePreview.jsx
 import React from "react";
 import { CheckCircle, XCircle, User, MapPin, IdCard } from "lucide-react";
 import Navbar from "../Navbar";

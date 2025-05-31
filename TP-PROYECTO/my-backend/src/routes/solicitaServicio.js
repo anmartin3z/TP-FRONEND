@@ -16,7 +16,7 @@ router.get('/estado/:id_persona', async (req, res) => {
       `SELECT id_servicio, estado, TO_CHAR(fecha_aprobacion, 'dd/MM/yyyy') as fecha_aprobacion , cod_user_aprueba
        FROM servicio 
        WHERE persona = $1 
-       ORDER BY fecha_solicitud DESC 
+       ORDER BY id_servicio DESC 
        LIMIT 1`,
       [id_persona]
     );
@@ -31,7 +31,7 @@ router.get('/estado/:id_persona', async (req, res) => {
     let nombre_oficial = "";
     if (servicio.cod_user_aprueba) {
       const oficialResult = await db.query(
-        `SELECT nombre FROM usuario WHERE cod_persona = $1`,
+        `SELECT nombre||' '||apellido nombre FROM usuario WHERE cod_persona = $1`,
         [servicio.cod_user_aprueba]
       );
       if (oficialResult.rows.length > 0) {
