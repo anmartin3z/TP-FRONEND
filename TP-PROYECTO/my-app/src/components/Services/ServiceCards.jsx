@@ -37,6 +37,8 @@ const ServiceCards = () => {
       await obtenerNombresTestigos();
         // Ocultar formulario
       setMostrarFormulario(false);
+       // Recargar la pantalla
+      window.location.reload();
       return; // Detener navegación al siguiente paso
     }
 

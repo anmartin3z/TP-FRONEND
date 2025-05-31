@@ -6,6 +6,8 @@ import ServiceCards from "./ServiceCards";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api from "../../config/axiosConfig";
+import { IdCard } from "lucide-react";
+
 
 const OurServices = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -18,8 +20,9 @@ const OurServices = () => {
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
-const generatePDF = (user) => {
+const generatePDF = async (user) => {
   const doc = new jsPDF();
+
   let y = 20;
 
   const pageWidth = doc.internal.pageSize.getWidth(); // Ancho total de la página
@@ -34,14 +37,14 @@ const generatePDF = (user) => {
   doc.text("Certificado de Vida y Residencia", pageWidth / 2, y, { align: "center" }); y += 10;
 
   // Subtítulo centrado más pequeño
-  doc.setFontSize(12);
+  doc.setFontSize(9);
   doc.text(
     "(Conforme al Art 6 Inc. 8 de la Ley 7280 de la Reforma y Modernización de la Policía Nacional)",
     pageWidth / 2,
     y,
     { align: "center" }
   ); y += 10;
-
+  doc.setFontSize(12);
   // Página 1 de 1 alineado a la derecha
   doc.text("Página 1 de 1", pageWidth - margin, y, { align: "right" }); y += 10;
 
@@ -52,14 +55,14 @@ const generatePDF = (user) => {
   const parrafo1 = `CERTIFICO QUE: ${user.nombre} ${user.apellido} de nacionalidad ${user.nacionalidad}, estado civil ${user.estado_civil} de ${user.edad} años de edad, con Cédula de Identidad Civil N° ${user.cod_persona}, con fecha de nacimiento ${user.fecha_nacimiento}-`;
   const parrafo2 = `VIVE Y RESIDE: en la casa N° ${user.nro_casa} ubicada en la calle ${user.direccion} del Barrio ${user.barrio} de esta ciudad de ${user.ciudad}`;
 
-  doc.text(doc.splitTextToSize(parrafo1, 170), margin, y); y += 15;
+  doc.text(doc.splitTextToSize(parrafo1, 170), margin,  y); y += 15;
   doc.text(doc.splitTextToSize(parrafo2, 170), margin, y); y += 15;
 
   doc.text("SEGÚN TESTIGOS, VECINOS DEL LUGAR:", pageWidth / 2, y, { align: "center" }); y += 10;
 
 
   user.testigos.forEach((testigo) => {
-    const texto = `• ${testigo.nombre}, de nacionalidad ${testigo.nacionalidad}, mayor de edad, con Cédula de Identidad Civil N° ${testigo.cod_persona}-`;
+    const texto = `• ${testigo.nombre} ${testigo.apellido}, de nacionalidad ${testigo.nacionalidad}, mayor de edad, con Cédula de Identidad Civil N° ${testigo.cod_persona}-`;
     const lineas = doc.splitTextToSize(texto, 170);
     doc.text(lineas, margin, y);
     y += lineas.length * 7;
@@ -82,8 +85,9 @@ const generatePDF = (user) => {
   doc.line(margin, y, pageWidth - margin, y); y += 10;
 
   // Fecha y oficial
-  doc.text(`Fecha de Emisión: ${user.fecha_aprobacion}                 Aprobado por: ${user.nombre_oficial}`, margin, y); y += 10;
-
+  const { data } = await api.get(`solicitaServicio/estado/${user.cod_persona}`);
+  doc.text(`Fecha de Emisión: ${data.fecha_aprovacion.split("T")[0]} `, margin, y); 
+  doc.text(` Aprobado por: ${user.nombre_oficial}`, pageWidth - margin, y, { align: "right" }); y += 10;
   // Otra línea
   doc.line(margin, y, pageWidth - margin, y); y += 10;
 
@@ -117,7 +121,8 @@ const generatePDF = (user) => {
     try {
       const { data } = await api.get(`solicitaServicio/estado/${user.cod_persona}`);
 
-      console.log("Estado recibido desde backend:", data.estado);
+      //console.log("Estado recibido desde backend:", data.estado);
+     
 
       if (data.estado === null) {
         setPuedeSolicitar(true);
@@ -130,7 +135,12 @@ const generatePDF = (user) => {
         const { data: testigosData } = await api.get(`detalleServicio/testigos/${data.id_servicio}`);
 
         setTestigos(testigosData);
+        //console.log("Testigos cargados:", testigosData);
       } else {
+        const { data: testigosData } = await api.get(`detalleServicio/testigos/${data.id_servicio}`);
+        setTestigos(testigosData);
+        //console.log("Testigos cargados:", testigosData);
+
         setPuedeSolicitar(false);
       }
     } catch (error) {
@@ -152,7 +162,7 @@ const generatePDF = (user) => {
       <div className="relative flex items-center justify-center mt-20 ">
 
         <Link
-          to="/"
+          to="/home"
           className="absolute left-0 ml-4"
         >
           <Button className="border border-black rounded-lg ">
@@ -171,7 +181,6 @@ const generatePDF = (user) => {
               generatePDF({
                 ...JSON.parse(localStorage.getItem("user")),
                 testigos,
-                fecha_aprobacion: datosServicio?.fecha_aprobacion,
                 nombre_oficial: datosServicio?.nombre_oficial,
               })
             }
@@ -194,9 +203,23 @@ const generatePDF = (user) => {
       )}
 
       {!cargando && !puedeSolicitar && (
-        <p className="text-red-600 text-center mt-4">
-          Ya tienes una solicitud pendiente. Espera a que sea aprobada para hacer una nueva.
-        </p>
+        <div className="bg-white shadow-md rounded-2xl p-6 mt-6 max-w-xl mx-auto border border-red-200">
+          <p className="text-red-600 text-center font-semibold">
+            Ya tienes una solicitud pendiente. Espera a que sea aprobada para hacer una nueva.
+          </p>
+
+          <ul className="mt-4 divide-y divide-gray-200">
+            {testigos.map((t, index) => (
+              <li key={index} className="py-3 flex items-center gap-4">
+                <IdCard className="w-5 h-5 text-indigo-500 mt-1" />
+                <div>
+                  <p className="font-medium">{t.nombre} {t.apellido}</p>
+                  <p className="text-xs text-gray-500">C.I.: {t.cod_persona}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>  
       )}
 
       {mostrarFormulario && (
