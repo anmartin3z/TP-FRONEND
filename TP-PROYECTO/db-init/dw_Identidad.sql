@@ -36,7 +36,7 @@ CREATE TABLE public.servicio (
                 id_servicio INTEGER NOT NULL DEFAULT nextval('public.servicio_id_servicio_seq'),
                 persona VARCHAR(20) NOT NULL,
                 fecha_solicitud DATE NOT NULL,
-                fecha_aprovacion DATE,
+                fecha_aprobacion DATE,
                 fecha_vencimiento DATE,
                 estado VARCHAR(1) NOT NULL,
                 motivo VARCHAR(250),

@@ -151,7 +151,7 @@ export const doAction = async (req, res) => {
   let result = null;
   if(rol === ROLES.OFICIAL){
     result = await db.query(`UPDATE public.servicio s
-      SET fecha_aprovacion = CURRENT_DATE, cod_user_aprueba = $2, estado = $4, motivo_rechazo = $5
+      SET fecha_aprobacion = CURRENT_DATE, cod_user_aprueba = $2, estado = $4, motivo_rechazo = $5
       WHERE s.id_servicio = $1 AND estado = $3
     `, [id_servicio, cod_persona, ESTADOS.PENDIENTE, status,reason]);
   } else {

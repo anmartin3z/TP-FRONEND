@@ -4,9 +4,6 @@ import db from '../db.js';
 export const crearServicio = async (req, res) => {
   const {
     persona,
-    fecha_solicitud,
-    fecha_aprovacion,
-    fecha_vencimiento,
     estado,
     motivo,
     cod_user_aprueba,
@@ -33,14 +30,11 @@ export const crearServicio = async (req, res) => {
 
     const result = await db.query(
       `INSERT INTO public."servicio" 
-        (persona, fecha_solicitud, fecha_aprovacion, fecha_vencimiento, estado, motivo, cod_user_aprueba)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+        (persona, fecha_solicitud, fecha_aprobacion, fecha_vencimiento, estado, motivo, cod_user_aprueba)
+       VALUES ($1, current_date, null, (current_date + interval '3 month')::date, $2, $3, $4)
        RETURNING id_servicio`,
       [
         persona,
-        fecha_solicitud,
-        fecha_aprovacion,
-        fecha_vencimiento,
         estado,
         motivo,
         cod_user_aprueba,

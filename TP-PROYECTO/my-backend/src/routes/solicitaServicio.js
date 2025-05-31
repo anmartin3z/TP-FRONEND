@@ -13,7 +13,7 @@ router.get('/estado/:id_persona', async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT id_servicio, estado, fecha_aprovacion, cod_user_aprueba
+      `SELECT id_servicio, estado, TO_CHAR(fecha_aprobacion, 'dd/MM/yyyy') as fecha_aprobacion , cod_user_aprueba
        FROM servicio 
        WHERE persona = $1 
        ORDER BY fecha_solicitud DESC 

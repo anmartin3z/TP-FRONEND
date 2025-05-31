@@ -3,7 +3,7 @@ import { verifyToken } from "./utils/jwt.js";
 
 
 export const doFilter = async (req, res, next) => {
-    if(req.path === '/api/auth/login'){
+    if(req.path === '/auth/login'){
         next();
         return;
     }
